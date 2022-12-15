@@ -49,15 +49,34 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
+  static async findAll(query = {}) {
+    const {name, minEmployees, maxEmployees } = query;
+    let companySearch = 
           `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+           FROM companies`;
+    const filters = [];
+    const values = [];
+    if (name !== undefined) {
+      values.push(`%${name}%`);
+      filters.push(`name ILIKE $${values.length}`);
+    }
+    if (minEmployees !== undefined) {
+      values.push(minEmployees);
+      filters.push(`num_employees >= $${values.length}`);
+    }
+    if (maxEmployees !== undefined) {
+      values.push(maxEmployees);
+      filters.push(`num_employees <= $${values.length}`);
+    }
+    if (filters.length > 0) {
+      companySearch += " WHERE " + filters.join(" AND ")
+    }    
+    query += "ORDER BY name";
+    const companiesRes = await db.query(companySearch, values);
     return companiesRes.rows;
   }
 
@@ -69,7 +88,7 @@ class Company {
    * Throws NotFoundError if not found.
    **/
 
-  static async get(handle) {
+   static async get(handle) {
     const companyRes = await db.query(
           `SELECT handle,
                   name,
@@ -83,6 +102,16 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobsRes = await db.query(
+          `SELECT id, title, salary, equity
+           FROM jobs
+           WHERE company_handle = $1
+           ORDER BY id`,
+        [handle],
+    );
+
+    company.jobs = jobsRes.rows;
 
     return company;
   }

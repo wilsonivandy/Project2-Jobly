@@ -78,7 +78,7 @@ describe("POST /auth/register", function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
-          username: "new",
+          username: "auth-new",
           firstName: "first",
           lastName: "last",
           password: "password",
@@ -94,7 +94,7 @@ describe("POST /auth/register", function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
-          username: "new",
+          username: "new1",
         });
     expect(resp.statusCode).toEqual(400);
   });
@@ -103,7 +103,7 @@ describe("POST /auth/register", function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
-          username: "new",
+          username: "auth2-new",
           firstName: "first",
           lastName: "last",
           password: "password",

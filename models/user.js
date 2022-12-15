@@ -159,7 +159,7 @@ class User {
    * or a serious security risks are opened.
    */
 
-  static async update(username, data) {
+   static async update(username, data) {
     if (data.password) {
       data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
     }
@@ -204,6 +204,30 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
+
+  
+     static async applyToJob(username, jobId) {
+      const getJob = await db.query(
+            `SELECT id
+             FROM jobs
+             WHERE id = $1`, [jobId]);
+      const job = getJob.rows[0];
+  
+      if (!job) throw new NotFoundError(`No job: ${jobId}`);
+  
+      const getUsername = await db.query(
+            `SELECT username
+             FROM users
+             WHERE username = $1`, [username]);
+      const user = getUsername.rows[0];
+  
+      if (!user) throw new NotFoundError(`No username: ${username}`);
+  
+      await db.query(
+            `INSERT INTO applications (job_id, username)
+             VALUES ($1, $2)`,
+          [jobId, username]);
+    }
 }
 
 
