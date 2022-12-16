@@ -61,9 +61,7 @@ router.get("/", async function (req, res, next) {
     }
 });
   
-  /** GET job by id
-   *
-   *  Job is { id, title, salary, equity, company_handle }
+  /** GET /[id]  =>  { job }
    *
    * Authorization required: none
    */
@@ -77,13 +75,13 @@ router.get("/", async function (req, res, next) {
     }
   });
   
-  /** PATCH job by id
+  /** PATCH /[id] { fld1, fld2, ... } => { job }
    *
-   * Returns { id, title, salary, equity, company_handle }
+   * Patches company data.
    *
-   * Authorization required: is admin
+   * Authorization required: login
    */
-  
+
   router.patch("/:id", ensureAdmin, async function (req, res, next) {
     try {
       const validator = jsonschema.validate(req.body, jobUpdateSchema);

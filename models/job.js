@@ -7,12 +7,14 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 /** Related functions for companies. */
 
 class Job {
-  /** Create a job (from data), update db, return new company data.
+
+  /** Create a job (from data), update db, return new job data.
    *
    * data should be { title, salary, equity, company_handle }
    *
-   * Returns { id, title, salary, equity, company_handle }
+   * Returns { id, title, salary, equity, company_handle AS "companyHandle" }
    *
+   * Throws BadRequestError if company already in database.
    * */
 
   static async create(data) {
@@ -27,9 +29,8 @@ class Job {
   }
 
   /** Find all companies.
-   *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-   * */
+   *  Able to filter based on salary, equity, and title.
+   */
 
   static async findAll({ minSalary, hasEquity, title } = {}) {
     let jobSearch = `SELECT j.id,
